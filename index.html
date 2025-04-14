@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>8th Pay Commission Calculator - India</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+      :root {
+        --govt-blue: #1a4b8c;
+        --govt-blue-dark: #0d3b76;
+        --govt-gold: #e6b54a;
+        --text-primary: #333333;
+        --light-bg: #f8f9fa;
+        --white: #ffffff;
+        --border-radius: 12px;
+        --box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+        --transition: all 0.3s ease;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: "Segoe UI", "Roboto", "Arial", sans-serif;
+        margin: 0;
+        padding: 20px;
+        background: linear-gradient(135deg, #f5f7fa 0%, #e4e9f2 100%);
+        color: var(--text-primary);
+        line-height: 1.6;
+        min-height: 100vh;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 20px auto;
+        background: var(--white);
+        padding: 30px;
+        border-radius: var(--border-radius);
+        box-shadow: var(--box-shadow);
+      }
+
+      .header {
+        text-align: center;
+        padding: 30px 20px;
+        background: linear-gradient(
+          120deg,
+          var(--govt-blue) 0%,
+          var(--govt-blue-dark) 100%
+        );
+        color: white;
+        border-radius: var(--border-radius);
+        margin-bottom: 40px;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .header::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        opacity: 0.2;
+      }
+
+      .header h1 {
+        margin-bottom: 10px;
+        font-weight: 600;
+      }
+
+      .header p {
+        font-size: 18px;
+        opacity: 0.9;
+      }
+
+      .calculator-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 40px;
+      }
+
+      .section-title {
+        margin-bottom: 20px;
+        color: var(--govt-blue);
+        font-weight: 600;
+        padding-bottom: 10px;
+        border-bottom: 2px solid var(--govt-gold);
+      }
+
+      .input-section {
+        background: var(--light-bg);
+        padding: 30px;
+        border-radius: var(--border-radius);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      }
+
+      .input-group {
+        margin-bottom: 24px;
+      }
+
+      .input-group.hra-input {
+        display: none;
+        transition: var(--transition);
+      }
+
+      .input-group.hra-input.show {
+        display: block;
+      }
+
+      .radio-group {
+        display: flex;
+        margin-bottom: 15px;
+        gap: 20px;
+      }
+
+      .radio-option {
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+      }
+
+      label {
+        display: block;
+        margin-bottom: 10px;
+        color: var(--govt-blue);
+        font-weight: 500;
+        font-size: 16px;
+      }
+
+      input,
+      select {
+        width: 100%;
+        padding: 12px 16px;
+        border: 2px solid #e1e5eb;
+        border-radius: 8px;
+        font-size: 16px;
+        transition: var(--transition);
+        background-color: var(--white);
+      }
+
+      input:focus,
+      select:focus {
+        outline: none;
+        border-color: var(--govt-blue);
+        box-shadow: 0 0 0 3px rgba(26, 75, 140, 0.1);
+      }
+
+      input[type="radio"] {
+        width: 18px;
+        height: 18px;
+        margin-right: 8px;
+        accent-color: var(--govt-blue);
+      }
+
+      .slider-container {
+        margin: 30px 0;
+      }
+
+      .slider-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+      }
+
+      .slider-value {
+        background: var(--govt-blue);
+        color: white;
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 14px;
+      }
+
+      input[type="range"] {
+        -webkit-appearance: none;
+        height: 8px;
+        border-radius: 4px;
+        background: #e1e5eb;
+        outline: none;
+        padding: 0;
+        margin: 10px 0;
+      }
+
+      input[type="range"]::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        background: var(--govt-blue);
+        cursor: pointer;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+      }
+
+      input[type="range"]::-moz-range-thumb {
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        background: var(--govt-blue);
+        cursor: pointer;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+      }
+
+      .results-section {
+        background: var(--white);
+        padding: 30px;
+        border-radius: var(--border-radius);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        border-left: 5px solid var(--govt-gold);
+      }
+
+      .comparison-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 20px 0;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+      }
+
+      .comparison-table th {
+        background: var(--govt-blue);
+        color: white;
+        padding: 15px;
+        text-align: left;
+        font-weight: 500;
+      }
+
+      .comparison-table tr:nth-child(even) {
+        background-color: rgba(0, 0, 0, 0.02);
+      }
+
+      .comparison-table td {
+        padding: 15px;
+        border-bottom: 1px solid #eee;
+      }
+
+      .summary-section {
+        margin: 40px 0;
+        padding: 25px;
+        background: var(--light-bg);
+        border-radius: var(--border-radius);
+        box-shadow: var(--box-shadow);
+        text-align: center;
+      }
+
+      .summary-card {
+        background: var(--white);
+        padding: 20px;
+        border-radius: 8px;
+        margin-top: 20px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+        display: inline-block;
+        min-width: 250px;
+      }
+
+      .summary-title {
+        font-size: 16px;
+        color: var(--govt-blue);
+        margin-bottom: 10px;
+      }
+
+      .summary-value {
+        font-size: 24px;
+        font-weight: 600;
+        color: var(--govt-blue-dark);
+      }
+
+      .disclaimer {
+        background: #fff8e1;
+        padding: 20px;
+        border-radius: var(--border-radius);
+        margin: 30px 0;
+        border-left: 5px solid var(--govt-gold);
+        font-size: 14px;
+      }
+
+      .highlight {
+        font-weight: 600;
+        color: var(--govt-blue-dark);
+      }
+
+      .download-button {
+        background: var(--govt-blue);
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 8px;
+        font-size: 16px;
+        cursor: pointer;
+        display: block;
+        margin: 30px auto;
+        transition: var(--transition);
+      }
+
+      .download-button:hover {
+        background: var(--govt-blue-dark);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+      }
+
+      @media (max-width: 768px) {
+        .calculator-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .container {
+          padding: 20px 15px;
+        }
+
+        .header {
+          padding: 20px 15px;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>8th Pay Commission Calculator</h1>
+        <p>Government of India Salary Revision Estimator</p>
+      </div>
+
+      <div class="calculator-grid">
+        <!-- Input Section -->
+        <div class="input-section">
+          <h3 class="section-title">Salary Details</h3>
+          <div class="input-group">
+            <label for="basicPay">Current Basic Pay (₹)</label>
+            <input type="number" id="basicPay" value="36000" min="0" />
+          </div>
+
+          <div class="input-group">
+            <label for="employeeType">Employee Type</label>
+            <select id="employeeType">
+              <option>Central Government</option>
+              <option>State Government</option>
+              <option>Pensioner</option>
+              <option>Autonomous Body</option>
+            </select>
+          </div>
+
+          <!-- HRA Selection Method -->
+          <div class="input-group">
+            <label>HRA Calculation Method</label>
+            <div class="radio-group">
+              <label class="radio-option">
+                <input type="radio" name="hraMethod" value="city" checked />
+                City-based
+              </label>
+              <label class="radio-option">
+                <input type="radio" name="hraMethod" value="manual" /> Manual
+              </label>
+            </div>
+          </div>
+
+          <!-- City-based HRA -->
+          <div class="input-group hra-city">
+            <label for="cityClass">City Classification</label>
+            <select id="cityClass">
+              <option value="27">X (27% HRA)</option>
+              <option value="18">Y (18% HRA)</option>
+              <option value="9">Z (9% HRA)</option>
+            </select>
+          </div>
+
+          <!-- Manual HRA -->
+          <div class="input-group hra-input">
+            <label for="hraPercentage">HRA Percentage (%)</label>
+            <input
+              type="number"
+              id="hraPercentage"
+              value="27"
+              min="0"
+              max="100"
+            />
+          </div>
+
+          <div class="input-group">
+            <label for="daPercentage">Dearness Allowance (DA) %</label>
+            <input
+              type="number"
+              id="daPercentage"
+              value="42"
+              min="0"
+              max="100"
+            />
+          </div>
+
+          <div class="slider-container">
+            <div class="slider-header">
+              <label for="fitmentSlider">Fitment Factor</label>
+              <span class="slider-value" id="fitmentValue">2.28</span>
+            </div>
+            <input
+              type="range"
+              id="fitmentSlider"
+              min="2.28"
+              max="3.0"
+              step="0.01"
+              value="2.28"
+            />
+            <div class="slider-range-labels">
+              <small style="float: left">2.28</small>
+              <small style="float: right">3.0</small>
+            </div>
+          </div>
+        </div>
+
+        <!-- Results Section -->
+        <div class="results-section">
+          <h3 class="section-title">8th CPC Salary Projection</h3>
+          <table class="comparison-table">
+            <tr>
+              <th>Component</th>
+              <th>7th CPC</th>
+              <th>8th CPC</th>
+            </tr>
+            <tr>
+              <td>Basic Pay</td>
+              <td id="basic7th">₹36,000</td>
+              <td id="basic8th" class="highlight">₹82,080</td>
+            </tr>
+            <tr>
+              <td>HRA (<span id="hraDisplay">27</span>%)</td>
+              <td id="hra7th">₹9,720</td>
+              <td id="hra8th">₹22,162</td>
+            </tr>
+            <tr>
+              <td>DA (<span id="daDisplay">42</span>%)</td>
+              <td id="da7th">₹15,120</td>
+              <td id="da8th">₹34,474</td>
+            </tr>
+            <tr>
+              <td><strong>Gross Salary</strong></td>
+              <td id="gross7th">₹60,840</td>
+              <td id="gross8th" class="highlight">₹138,716</td>
+            </tr>
+          </table>
+
+          <div>
+            <p style="margin-top: 20px; text-align: center">
+              <span class="highlight">Projected Increase: </span>
+              <span id="increasePct">128%</span>
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="summary-section">
+        <h3 class="section-title">Summary</h3>
+        <div class="summary-card">
+          <div class="summary-title">Expected Annual Increase</div>
+          <div class="summary-value" id="annualIncrease">₹933,912</div>
+        </div>
+      </div>
+
+      <button class="download-button" id="downloadPdf">
+        Download Salary Projection as PDF
+      </button>
+
+      <div class="disclaimer">
+        <strong>Disclaimer:</strong> Calculations are based on current 7th CPC
+        parameters and projected 8th CPC recommendations. The fitment factor of
+        2.28 is the minimum expected based on historical trends. Actual
+        implementation may vary based on final government decisions. Both DA and
+        HRA rates can be adjusted to reflect current rates.
+      </div>
+    </div>
+
+    <script>
+      // Real-time Calculation Engine
+      function calculateSalary() {
+        // Input Values
+        const basicPay =
+          parseFloat(document.getElementById("basicPay").value) || 0;
+        const fitmentFactor = parseFloat(
+          document.getElementById("fitmentSlider").value
+        );
+        const daPercentage =
+          parseFloat(document.getElementById("daPercentage").value) / 100 || 0;
+
+        // HRA Calculation based on selected method
+        let hraPercentage;
+        if (
+          document.querySelector('input[name="hraMethod"]:checked').value ===
+          "city"
+        ) {
+          hraPercentage =
+            parseFloat(document.getElementById("cityClass").value) / 100;
+        } else {
+          hraPercentage =
+            parseFloat(document.getElementById("hraPercentage").value) / 100 ||
+            0;
+        }
+
+        // Update HRA display
+        document.getElementById("hraDisplay").textContent = (
+          hraPercentage * 100
+        ).toFixed(0);
+        document.getElementById("daDisplay").textContent = (
+          daPercentage * 100
+        ).toFixed(0);
+
+        // 7th CPC Calculations
+        const da7th = basicPay * daPercentage;
+        const hra7th = basicPay * hraPercentage;
+        const gross7th = basicPay + da7th + hra7th;
+
+        // 8th CPC Projections
+        const newBasic = basicPay * fitmentFactor;
+        const da8th = newBasic * daPercentage * 0.0;
+        const hra8th = newBasic * hraPercentage;
+        const gross8th = newBasic + da8th + hra8th;
+
+        // Calculate percentage increase
+        const increasePercentage =
+          gross7th > 0
+            ? (((gross8th - gross7th) / gross7th) * 100).toFixed(1)
+            : 0;
+        document.getElementById(
+          "increasePct"
+        ).textContent = `${increasePercentage}%`;
+
+        // Calculate annual increase
+        const monthlyIncrease = gross8th - gross7th;
+        const annualIncrease = monthlyIncrease * 12;
+        document.getElementById("annualIncrease").textContent =
+          formatCurrency(annualIncrease);
+
+        // Update Display with proper formatting
+        document.getElementById("basic7th").textContent =
+          formatCurrency(basicPay);
+        document.getElementById("hra7th").textContent = formatCurrency(hra7th);
+        document.getElementById("da7th").textContent = formatCurrency(da7th);
+        document.getElementById("gross7th").textContent =
+          formatCurrency(gross7th);
+
+        document.getElementById("basic8th").textContent =
+          formatCurrency(newBasic);
+        document.getElementById("hra8th").textContent = formatCurrency(hra8th);
+        document.getElementById("da8th").textContent = formatCurrency(da8th);
+        document.getElementById("gross8th").textContent =
+          formatCurrency(gross8th);
+      }
+
+      // Format currency with Indian numbering system
+      function formatCurrency(amount) {
+        return `₹${amount.toLocaleString("en-IN", {
+          maximumFractionDigits: 0,
+        })}`;
+      }
+
+      // Toggle HRA Input Method
+      document.querySelectorAll('input[name="hraMethod"]').forEach((radio) => {
+        radio.addEventListener("change", function () {
+          const manualHRAInput = document.querySelector(".hra-input");
+          const cityHRAInput = document.querySelector(".hra-city");
+
+          if (this.value === "manual") {
+            manualHRAInput.classList.add("show");
+            cityHRAInput.style.display = "none";
+          } else {
+            manualHRAInput.classList.remove("show");
+            cityHRAInput.style.display = "block";
+          }
+          calculateSalary();
+        });
+      });
+
+      // Event Listeners
+      document
+        .getElementById("fitmentSlider")
+        .addEventListener("input", function () {
+          document.getElementById("fitmentValue").textContent = this.value;
+          calculateSalary();
+        });
+
+      // Input validation and event listeners
+      document.querySelectorAll('input[type="number"]').forEach((input) => {
+        input.addEventListener("input", function () {
+          // Ensure non-negative values
+          if (this.value < 0) this.value = 0;
+          calculateSalary();
+        });
+      });
+
+      document.querySelectorAll("input, select").forEach((element) => {
+        element.addEventListener("input", calculateSalary);
+        element.addEventListener("change", calculateSalary);
+      });
+
+      // PDF Generation
+      document
+        .getElementById("downloadPdf")
+        .addEventListener("click", function () {
+          const { jsPDF } = window.jspdf;
+          const doc = new jsPDF();
+
+          // Add content to PDF
+          doc.setFontSize(18);
+          doc.setTextColor(26, 75, 140);
+          doc.text("8th Pay Commission Salary Projection", 105, 20, {
+            align: "center",
+          });
+
+          doc.setFontSize(12);
+          doc.setTextColor(0, 0, 0);
+          doc.text("Government of India", 105, 30, { align: "center" });
+
+          const basicPay = document.getElementById("basicPay").value;
+          const employeeType = document.getElementById("employeeType").value;
+          const fitmentFactor =
+            document.getElementById("fitmentValue").textContent;
+
+          doc.setFontSize(12);
+          doc.text(`Employee Type: ${employeeType}`, 20, 50);
+          doc.text(
+            `Current Basic Pay: ${
+              document.getElementById("basic7th").textContent
+            }`,
+            20,
+            60
+          );
+          doc.text(`Fitment Factor: ${fitmentFactor}`, 20, 70);
+          doc.text(
+            `DA Rate: ${document.getElementById("daDisplay").textContent}%`,
+            20,
+            80
+          );
+          doc.text(
+            `HRA Rate: ${document.getElementById("hraDisplay").textContent}%`,
+            20,
+            90
+          );
+
+          doc.text("Salary Comparison:", 20, 110);
+
+          // Table headers
+          doc.setFillColor(26, 75, 140);
+          doc.setTextColor(255, 255, 255);
+          doc.rect(20, 115, 50, 10, "F");
+          doc.rect(70, 115, 50, 10, "F");
+          doc.rect(120, 115, 50, 10, "F");
+          doc.text("Component", 25, 122);
+          doc.text("7th CPC", 80, 122);
+          doc.text("8th CPC", 130, 122);
+
+          // Table content
+          doc.setTextColor(0, 0, 0);
+
+          // Row 1: Basic Pay
+          doc.rect(20, 125, 50, 10);
+          doc.rect(70, 125, 50, 10);
+          doc.rect(120, 125, 50, 10);
+          doc.text("Basic Pay", 25, 132);
+          doc.text(document.getElementById("basic7th").textContent, 75, 132);
+          doc.text(document.getElementById("basic8th").textContent, 125, 132);
+
+          // Row 2: HRA
+          doc.rect(20, 135, 50, 10);
+          doc.rect(70, 135, 50, 10);
+          doc.rect(120, 135, 50, 10);
+          doc.text("HRA", 25, 142);
+          doc.text(document.getElementById("hra7th").textContent, 75, 142);
+          doc.text(document.getElementById("hra8th").textContent, 125, 142);
+
+          // Row 3: DA
+          doc.rect(20, 145, 50, 10);
+          doc.rect(70, 145, 50, 10);
+          doc.rect(120, 145, 50, 10);
+          doc.text("DA", 25, 152);
+          doc.text(document.getElementById("da7th").textContent, 75, 152);
+          doc.text(document.getElementById("da8th").textContent, 125, 152);
+
+          // Row 4: Gross
+          doc.rect(20, 155, 50, 10);
+          doc.rect(70, 155, 50, 10);
+          doc.rect(120, 155, 50, 10);
+          doc.text("Gross Salary", 25, 162);
+          doc.text(document.getElementById("gross7th").textContent, 75, 162);
+          doc.text(document.getElementById("gross8th").textContent, 125, 162);
+
+          // Summary
+          doc.setTextColor(26, 75, 140);
+          doc.text(
+            `Projected Increase: ${
+              document.getElementById("increasePct").textContent
+            }`,
+            105,
+            180,
+            { align: "center" }
+          );
+          doc.text(
+            `Annual Increase: ${
+              document.getElementById("annualIncrease").textContent
+            }`,
+            105,
+            190,
+            { align: "center" }
+          );
+
+          // Disclaimer
+          doc.setFontSize(10);
+          doc.setTextColor(100, 100, 100);
+          doc.text(
+            "Disclaimer: Projections are based on expected minimum fitment factor. Actual implementation may vary.",
+            105,
+            210,
+            { align: "center" }
+          );
+
+          // Add date of generation
+          const today = new Date();
+          doc.text(`Generated on: ${today.toDateString()}`, 105, 220, {
+            align: "center",
+          });
+
+          // Save the PDF
+          doc.save("8th-CPC-Salary-Projection.pdf");
+        });
+
+      // Initial Setup
+      window.onload = () => {
+        calculateSalary();
+      };
+    </script>
+  </body>
+</html>
